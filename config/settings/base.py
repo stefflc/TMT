@@ -22,6 +22,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
+# don't commit SECRET_KEY, but I assume this is here just for the purposes of this test.
 SECRET_KEY = '#lz1-_pf78xg3qxohts(mo^vt^0z0q3d8fm7em=nz#2is_)saz'
 
 # SECURITY WARNING: don't run with debug turned on in production!
@@ -42,7 +43,9 @@ INSTALLED_APPS = [
     'rest_framework',
     'interview.core',
     'interview.inventory',
-    'interview.order'
+    'interview.order',
+    'profiles',
+
 ]
 
 MIDDLEWARE = [
