@@ -29,15 +29,18 @@ class IsActiveModel(models.Model):
     
     class Meta:
         abstract = True
-    
+
+    # I assumed that "active" should change is_active to True and vice versa.
+    # Not sure if this is part of the test, or some fun reverse convention I have not seen :)
     @classmethod
     def activate(cls, pk: int):
-        cls.objects.filter(pk=pk).update(is_active=False)
-    
+        activated = cls.objects.filter(pk=pk).update(is_active=True)
+        return activated
+
     @classmethod
     def deactivate(cls, pk: int):
-        cls.objects.filter(pk=pk).update(is_active=True)
-        
+        deactivated = cls.objects.filter(pk=pk).update(is_active=False)
+        return deactivated
 
 class NameModel(models.Model):
     name = models.CharField(max_length=255)
