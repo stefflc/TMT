@@ -1,3 +1,5 @@
+import datetime
+
 from rest_framework.response import Response
 from rest_framework.request import Request
 from rest_framework.views import APIView
@@ -33,6 +35,43 @@ class InventoryListCreateView(APIView):
     
     def get_queryset(self):
         return self.queryset.all()
+
+
+# Going fast, but this could probably just be an inherited class of InventoryListCreateview(...)
+    # Did not want to grant InventoryListByDateView an explicit post() function which would be inherited
+# Also considered overriding InventoryListCreateView.get() function but that view seems explicitly for getting all.
+
+class InventoryListByDateView(APIView):
+    """
+    e.g. /inventory/?created_after=2024-01-01
+    Pass the query param created_after to filter on the created_at field from TimestampedModel
+    """
+    queryset = Inventory.objects.all()
+    # the base InventorySerializer class doesn't show created_at date field. If required, add a new serializer that has that field serialized.
+    serializer_class = InventorySerializer
+
+    def get(self, request: Request, *args, **kwargs) -> Response:
+        created_after = request.query_params.get('created_after')
+
+        if created_after:
+            date_format = "%Y-%m-%d"
+            # assumed date type based on "certain day" in requirements. Datetime would likely be useful given created_at is DateTimeField.
+            try:
+                # Parse string into datetime at 00:00:00
+                created_after_dt = datetime.strptime(created_after, date_format)
+                inventories = self.queryset.filter(created_at__gt=created_after_dt)
+            except ValueError:
+                return Response(
+                    {'error': f'Invalid date format. Use {date_format} i.e. YYYY-MM-DD.'},
+                    status=400
+                )
+            except Exception as e:
+                return Response({'error': str(e)}, status=400)
+        else:
+            inventories = self.queryset.all()
+
+        serializer = self.serializer_class(inventories, many=True)
+        return Response(serializer.data, status=200)
     
 
 class InventoryRetrieveUpdateDestroyView(APIView):
